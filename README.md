@@ -1,5 +1,7 @@
 # 🛸 ChatHub — Liquid Glass P2P Messenger
 
+Link for the app: https://safirazim-ui.github.io/ChatHUB-APP/
+
 > **Decentralized, Peer-to-Peer Web Messaging with Apple-Inspired Liquid Glass Design System**
 
 ChatHub is an open-source, client-side, zero-knowledge peer-to-peer (P2P) messaging application. Built entirely with vanilla HTML5, JavaScript, and Tailwind CSS, ChatHub requires **no backend server database**—all user credentials, messages, group definitions, and custom themes are persisted directly in the browser's `localStorage` and communicated via direct WebRTC data channels.
