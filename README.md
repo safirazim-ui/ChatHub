@@ -1,6 +1,6 @@
 # 🛸 ChatHub — Liquid Glass P2P Messenger
 
-Link for the app: https://safirazim-ui.github.io/ChatHUB-APP/
+Link for the app: https://safirazim-ui.github.io/ChatHub-App/
 
 > **Decentralized, Peer-to-Peer Web Messaging with Apple-Inspired Liquid Glass Design System**
 
