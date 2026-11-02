@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ChatHub - Liquid Glass P2P</title>
+    
+    <!-- PWA META TAGS & DYNAMIC FAVICON (3D Translucent Glass Cube Icon) -->
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ChatHub">
+    
+    <link id="app-favicon" rel="icon" type="image/svg+xml" href="">
+    <link id="app-apple-icon" rel="apple-touch-icon" href="">
+    <link id="app-manifest" rel="manifest" href="">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PeerJS CDN -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- Google Fonts Inter & Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- THEMES ENGINE & MATERIAL 3 LIQUID GLASS STYLING -->
+    <style id="app-styles">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+            vertical-align: middle;
+        }
+
+        :root {
+            --bg-base: #0b0f19;
+            --text-main: #f1f5f9;
+            --glass-panel-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --bubble-peer-bg: rgba(255, 255, 255, 0.12);
+            --bubble-peer-text: #f8fafc;
+            --custom-bg-image: none;
+        }
+
+        body.theme-light {
+            --bg-base: #e2e8f0;
+            --text-main: #0f172a;
+            --glass-panel-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(0, 0, 0, 0.12);
+            --bubble-peer-bg: rgba(255, 255, 255, 0.55);
+            --bubble-peer-text: #0f172a;
+        }
+
+        body.theme-sepia {
+            --bg-base: #f4ebd0;
+            --text-main: #432818;
+            --glass-panel-bg: rgba(230, 215, 180, 0.8);
+            --glass-border: rgba(67, 40, 24, 0.18);
+            --bubble-peer-bg: rgba(249, 241, 219, 0.75);
+            --bubble-peer-text: #432818;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            overflow: hidden;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        #custom-bg-layer {
+            position: absolute;
+            inset: 0;
+            background-image: var(--custom-bg-image);
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: var(--glass-panel-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+        }
+
+        /* Enhanced Liquid Glass Bubbles */
+        .bubble-me {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.88) 0%, rgba(0, 85, 220, 0.92) 100%);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 8px 20px rgba(0, 122, 255, 0.35);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-bottom-right-radius: 4px !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bubble-me::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 45%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), transparent);
+            pointer-events: none;
+            border-top-left-radius: inherit;
+            border-top-right-radius: inherit;
+        }
+
+        .bubble-peer {
+            background: var(--bubble-peer-bg);
+            backdrop-filter: blur(20px) saturate(190%);
+            -webkit-backdrop-filter: blur(20px) saturate(190%);
+            border: 1px solid var(--glass-border);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 20px rgba(0, 0, 0, 0.15);
+            color: var(--bubble-peer-text);
+            border-bottom-left-radius: 4px !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bubble-peer::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.18), transparent);
+            pointer-events: none;
+            border-top-left-radius: inherit;
+            border-top-right-radius: inherit;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Notification Animation */
+        @keyframes notificationSlide {
+            0% { transform: translateY(-120%) scale(0.9); opacity: 0; }
+            15% { transform: translateY(0) scale(1); opacity: 1; }
+            85% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-120%) scale(0.9); opacity: 0; }
+        }
+
+        .notification-toast {
+            animation: notificationSlide 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex justify-center items-center relative overflow-hidden p-2 sm:p-4 md:p-6">
+
+    <!-- FLOATING WELCOME MODAL (FIRST TIME USERS) -->
+    <div id="welcome-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-xl p-4 transition-all duration-300">
+        <div class="glass-panel w-full max-w-lg rounded-3xl border border-white/30 shadow-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden transform scale-100 transition-transform">
+            <!-- Decorative Specular Sheen & Light Orb -->
+            <div class="absolute -top-16 -left-16 w-32 h-32 bg-blue-500/40 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-32 h-32 bg-indigo-500/40 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Modal Header & Language Selector Button -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-2xl">forum</span>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight text-white">ChatHub</h2>
+                        <p id="welcome-subtitle" class="text-xs text-blue-300/80 font-medium">Liquid Glass P2P Messenger</p>
+                    </div>
+                </div>
+
+                <!-- Language Switcher Pill -->
+                <div class="flex items-center bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/15 shadow-inner">
+                    <button onclick="app.setWelcomeLanguage('en')" id="lang-btn-en" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all bg-blue-500 text-white shadow-sm">EN</button>
+                    <button onclick="app.setWelcomeLanguage('es')" id="lang-btn-es" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all text-slate-300 hover:text-white">ES</button>
+                    <button onclick="app.setWelcomeLanguage('ca')" id="lang-btn-ca" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all text-slate-300 hover:text-white">CAT</button>
+                </div>
+            </div>
+
+            <!-- Welcome Dynamic Content -->
+            <div class="space-y-4">
+                <h3 id="welcome-heading" class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-blue-200">
+                    Welcome to ChatHub! 👋
+                </h3>
+                
+                <p id="welcome-intro" class="text-sm text-slate-300 leading-relaxed">
+                    ChatHub is a modern, decentralized peer-to-peer messaging application designed with frosted liquid glass visual effects, real-time WebRTC audio/video sharing, and zero central server tracking.
+                </p>
+
+                <!-- Features Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-blue-400 text-xl mt-0.5">hub</span>
+                        <div>
+                            <h4 id="welcome-feat1-title" class="text-xs font-bold text-white">Direct P2P WebRTC</h4>
+                            <p id="welcome-feat1-desc" class="text-[11px] text-slate-400">Connect straight browser-to-browser with custom Peer IDs.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-cyan-400 text-xl mt-0.5">timer</span>
+                        <div>
+                            <h4 id="welcome-feat2-title" class="text-xs font-bold text-white">15-Min Expiring Links</h4>
+                            <p id="welcome-feat2-desc" class="text-[11px] text-slate-400">Invite friends safely using auto-expiring group links.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-indigo-400 text-xl mt-0.5">mic</span>
+                        <div>
+                            <h4 id="welcome-feat3-title" class="text-xs font-bold text-white">Voice & Media Sharing</h4>
+                            <p id="welcome-feat3-desc" class="text-[11px] text-slate-400">Send high-quality voice notes, photos, and HD videos.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-teal-400 text-xl mt-0.5">lock</span>
+                        <div>
+                            <h4 id="welcome-feat4-title" class="text-xs font-bold text-white">100% Private & Local</h4>
+                            <p id="welcome-feat4-desc" class="text-[11px] text-slate-400">All data stays in your device local storage with PIN safety.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Get Started Button -->
+            <div class="pt-2">
+                <button onclick="app.dismissWelcomeModal()" id="welcome-cta-btn" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/35 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-sm">
+                    <span>Get Started</span>
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
